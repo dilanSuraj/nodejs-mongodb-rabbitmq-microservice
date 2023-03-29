@@ -5,7 +5,7 @@ const mongoose = require("mongoose")
 const jwt = require("jsonwebtoken")
 const amqp = require("amqplib")
 const product = require("./models/product")
-const isAuthenticated = require("../authenticator")
+const {isAuthenticated} = require("../authenticator")
 
 var channel, connection, order;
 
@@ -27,13 +27,13 @@ async function connect() {
 }
 connect();
 
-app.post("/test" ,(req, res) =>{
-    console.log(isAuthenticated())
-})
+app.post("/test", isAuthenticated, async(req, res) =>{
+    return res.json({msg:"Done"})
+    // 
+})  
 
 // Create a new product
-// app.post("/product/create", isAuthenticated, async(req, res) => {
-app.post("/product/create",  async(req, res) => {
+app.post("/product/create", isAuthenticated,  async(req, res) => {
     const {name, description, price} = req.body;
     const newProduct = new Product({
         name, 
@@ -45,7 +45,7 @@ app.post("/product/create",  async(req, res) => {
 })
 
 // Buy a product
-app.post("/product/buy", async(req, res) => {
+app.post("/product/buy", isAuthenticated, async(req, res) => {
     const {ids} = req.body;
     const products =  await Product.find({_id: {$in : ids}});
     channel.sendToQueue("ORDER", Buffer.from(JSON.stringify({
