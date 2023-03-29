@@ -29,7 +29,6 @@ connect();
 
 app.post("/test", isAuthenticated, async(req, res) =>{
     return res.json({msg:"Done"})
-    // 
 })  
 
 // Create a new product
